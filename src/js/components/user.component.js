@@ -1,6 +1,7 @@
 import { AuthService } from './../services/auth.service';
 import { ActiveRoute } from './../core/active.route.service';
 import { UserService } from './../services/user.service';
+import { DeleteImageModalComponent } from './deleteImageModal.component';
 
 export class UserComponent {
     constructor() {
@@ -13,6 +14,7 @@ export class UserComponent {
         this._user;
         this._userImages = [];
         this._imagesTemplate;
+        this._deleteImageModalComponent;
     }
     async beforeRender() {
         this._activeUserId = this._activeRoute.parseRequestURL().id;
@@ -21,6 +23,8 @@ export class UserComponent {
         this._userImages = await this._userService.getUserImeges(this._activeUserId);
 
         this._imagesTemplate = this._userImages.images.map((image) => this.__singleImageTemplate(image));
+
+        this._deleteImageModalComponent = new DeleteImageModalComponent();
     }
     render() {
         return `
@@ -43,6 +47,8 @@ export class UserComponent {
                     ${this._imagesTemplate.join('')}
                 </div>
             </div>
+
+            <div class="delete-image-modal-container"></div>
         `;
     }
     style() {
@@ -95,7 +101,7 @@ export class UserComponent {
     _singleImageTemplate(image) {
         return `
             <div class="col col-4">
-                <div class="img-item">
+                <div class="img-item" data-imadeId="${image._id}">
                     <img src="${image.url}">
                     <div class="img-item-hover">
                         <span>
@@ -106,12 +112,20 @@ export class UserComponent {
                             <i class="fas fa-thumbs-up"></i>
                             ${image.likes.length}
                         </span>
+                        <span>
+                            <i class="fas fa-trach-alt delete-image" data-toggle="modal" data-target="#deleteImageModal"></i>
+                        </span>
                     </div>
                 </div>
             </div>
         `;
     }
     afterRender() {
-
+        document.querySelectorAll(".delete-image").forEach((icon) => icon.addEventListener('click', (e) => {
+            const imageId = e.target.closest('[data-imageId]').dataset.imageid;
+            const [image] = this._userImages.images.filter((img) => img._id === imageId);
+            this._deleteImageModalComponent.imageForDelete = image;
+            document.querySelector('.delete-image-modal-container').innerHTML = this._deleteImageModalComponent.render();
+        }));
     }
 }

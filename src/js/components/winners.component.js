@@ -1,15 +1,19 @@
 import { WinnersService }  from './../services/winners.service';
 
 export class WinnersComponent {
-    constructor(option) {
+    constructor() {
         this._winnersService = new WinnersService();
-        this._option = option || "?part=1&limit=15";
         this._winners = [];
         this._winnersTemplate;
+
+        this._option = {
+            part: 1, 
+            limit: 15
+        };
     }
     async beforeRender() {
-        this._winners = await this._winnersService.getWinners(this._option);
-
+        this._winners = await this._winnersService.getWinners(`?${this._option.part}&${this._option.limit}`);
+        console.log(this._winners);
         this._winnersTemplate = this._winners.winners.map((item) => this._singleWinnersTemplate(item));
     }
     render() {

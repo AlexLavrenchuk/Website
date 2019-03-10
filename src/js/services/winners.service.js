@@ -10,7 +10,6 @@ export class WinnersService {
             http.get(`${ENV.apiUrl}/public/winners${option}`)
                 .then((response) => {
                     resolve(response);
-                    console.log(response);
                 })
                 .catch((err) => reject(err));
         });
